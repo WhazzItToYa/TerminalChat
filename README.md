@@ -1,5 +1,8 @@
 # Description
 This is a [Streamer.bot](Streamer.bot)-based OBS Browser overlay for displaying chat in the style of an 80's style character terminal.
+
+![Demo Thumbnail](demo.gif)
+
 # Usage
 URL: ???/terminalchat.html
 
