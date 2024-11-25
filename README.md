@@ -4,7 +4,7 @@ This is a [Streamer.bot](Streamer.bot)-based OBS Browser overlay for displaying 
 ![Demo Thumbnail](demo.gif)
 
 # Usage
-URL: https://whazzittoya.github.io/Overlays/TerminalChat/terminalchat.html
+URL: [https://whazzittoya.github.io/Overlays/TerminalChat/terminalchat.html](https://whazzittoya.github.io/Overlays/TerminalChat/terminalchat.html)
 
 Query arguments:
 * `maxMessages` : number of most recent messages to keep.
