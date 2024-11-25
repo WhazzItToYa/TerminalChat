@@ -1,0 +1,56 @@
+body {
+    background-color: black;
+}
+
+.chatMessage {
+    font-size: 40px;
+    font-family: "Fixedsys Excelsior 3.01";
+}
+
+.chatMessage img {
+    height: 40px;
+    vertical-align: text-bottom;
+}
+
+#chatArea {
+    position: fixed;
+    width: 100%;
+    bottom: 0px;
+}
+
+#chatMessageTemplate {
+    display: none;
+}
+
+.chatMessage {
+    width: 0%;
+    height: 0px;
+    color: #7f7;
+    text-wrap: nowrap; /* Chromium >= 114 */
+    white-space: nowrap; /* Chromium < 114 */
+    overflow: hidden;
+    animation-name: scroll, cursor;
+    animation-delay: 0s, 0.25s;
+    animation-duration: 0.25s, 1.5s;
+    animation-iteration-count: 1, 1;
+    animation-timing-function: steps(2, jump-end), steps(40, jump-start);
+    animation-fill-mode: forwards, forwards;
+}
+
+@keyframes scroll {
+    0% {
+        height: 0px;
+    }
+    100% {
+        height: 48px;
+    }
+}
+
+@keyframes cursor {
+    0% {
+        width: 0%;
+    }
+    100% {
+        width: 70%;
+    }
+}
