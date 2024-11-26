@@ -19,11 +19,24 @@ client.on('Twitch.ChatMessage', ({data}) => {
     }
 });
 
+client.on('Twitch.ChatMessageDeleted', ({data: {messageId}}) => {
+    deleteMessage(messageId);
+});
+client.on('Twitch.UserTimedOut', ({data: {user_id}}) => {
+    deleteMessagesFrom(user_id);
+});
+client.on('Twitch.UserBanned', ({data: {user_id}}) => {
+    deleteMessagesFrom(user_id);
+});
+
 var previousMessage = null;
 
 function displayChatMessage(data) {
     console.dir(data);
 
+    let messageId = data.messageId;
+    let userId = data.message.userId;
+    
     // Ignore certain users
     if (IGNORED_USERS[data.message.username]) return;
     // Ignore commands
@@ -35,6 +48,9 @@ function displayChatMessage(data) {
 
     // Put the message into the cloned element
     newElement.removeAttribute("id");
+    newElement.setAttribute("msgId", messageId);
+    newElement.setAttribute("userId", userId);
+    
     var username = newElement.querySelector("#user");
     username.textContent = data.message.displayName;
     username.style.color = data.message.color;
@@ -113,4 +129,20 @@ function substring(sourceString, startIndex, substringLength)
         }
     }
     return sourceString.substring(startIndex, endIndex);
+}
+
+function deleteMessagesFrom(userId)
+{
+    let msgs = document.querySelectorAll(`[userId="${userId}"`);
+    for (const elt of msgs) {
+        elt.remove();
+    }
+}
+
+function deleteMessage(msgId)
+{
+    let msgs = document.querySelectorAll(`[msgId="${msgId}"`);
+    for (const elt of msgs) {
+        elt.remove();
+    }
 }
