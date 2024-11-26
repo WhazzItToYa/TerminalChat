@@ -22,13 +22,22 @@ body {
     display: none;
 }
 
-.chatMessage {
+.chatLine { /* A row in the chat display */
     width: 0%;
     height: 0px;
     color: #7f7;
     text-wrap: nowrap; /* Chromium >= 114 */
     white-space: nowrap; /* Chromium < 114 */
     overflow: hidden;
+    animation-name: scroll;
+    animation-delay: 0s;
+    animation-duration: 0.25s;
+    animation-iteration-count: 1;
+    animation-timing-function: steps(2, jump-end);
+    animation-fill-mode: forwards;
+}
+
+.chatMessage { /* a chatLine which contains an actual user message */
     animation-name: scroll, cursor;
     animation-delay: 0s, 0.25s;
     animation-duration: 0.25s, 1.5s;

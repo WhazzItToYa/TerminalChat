@@ -2,6 +2,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const KEEP_MESSAGES = urlParams.get('maxMessages') || 5;
 const IGNORE_USERS = urlParams.get('ignoreUsers') || "";
 const IGNORE_COMMANDS = isTrue(urlParams.get('ignoreCommands'));
+const FADEOUT_TIME = urlParams.get('fadeout') || (60*60*24);
 const IGNORED_USERS = {};
 
 for (const u of IGNORE_USERS.split(/,/)) {
@@ -37,10 +38,9 @@ client.on('Twitch.UserBanned', ({data: {user_id}}) => {
     deleteMessagesFrom(user_id);
 });
 
-var previousMessage = null;
-
+// Appends a chat message to the display.
 function displayChatMessage(data) {
-    console.dir(data);
+    // console.dir(data);
 
     let messageId = data.messageId;
     let userId = data.message.userId;
@@ -49,13 +49,10 @@ function displayChatMessage(data) {
     if (IGNORED_USERS[data.message.username]) return;
     // Ignore commands
     if (IGNORE_COMMANDS && data.message.message.startsWith("!")) return;
-    
-    // Clone the template element for each new message.
-    let templateElement = document.getElementById("chatMessageTemplate");
-    let newElement = templateElement.cloneNode(true);
+
+    let newElement = insertNewLine();
 
     // Put the message into the cloned element
-    newElement.removeAttribute("id");
     newElement.setAttribute("msgId", messageId);
     newElement.setAttribute("userId", userId);
     
@@ -64,21 +61,62 @@ function displayChatMessage(data) {
     username.style.color = data.message.color;
     
     newElement.querySelector("#message").innerHTML = insertEmotes(data);
-    templateElement.parentElement.appendChild(newElement);
 
+    removeOldMessages();
+
+    updateFadeoutTimer();
+}
+
+// Removes all but the last KEEP_MESSAGES messages.
+function removeOldMessages()
+{
     // Remove messages older than the last N messages.
-    let messages = document.querySelectorAll(".chatMessage:not(#chatMessageTemplate)");
+    let messages = document.querySelectorAll(".chatLine:not(#chatMessageTemplate)");
     messages.forEach(
         function(elt, idx) {
             if (messages.length - idx > KEEP_MESSAGES) {
                 elt.remove();
             }
         });
-
-    // Remember the current message as the previous one.
-    previousMessage = newElement;
 }
 
+// Appends a blank line to the message display.
+function displayBlankLine() {
+    let line = insertNewLine();
+    line.classList.remove("chatMessage");
+    removeOldMessages();
+}
+
+// Appends a new line to the display, to be populated by the
+// caller.
+function insertNewLine()
+{
+    // Clone the template element for each new message.
+    let templateElement = document.getElementById("chatMessageTemplate");
+    let newElement = templateElement.cloneNode(true);
+    newElement.removeAttribute("id");
+    templateElement.parentElement.appendChild(newElement);
+    return newElement;
+}        
+
+// Starts or restarts the delay to have the messages scroll off the top.
+var fadeoutTimer;
+function updateFadeoutTimer()
+{
+    if (fadeoutTimer) clearTimeout(fadeoutTimer);
+    fadeoutTimer = setTimeout(() => {scrollOff(KEEP_MESSAGES);}, FADEOUT_TIME*1000);
+}
+
+// Animates scrolling numLines lines, starting now.
+function scrollOff(numLines)
+{
+    if (numLines > 0) {
+        displayBlankLine();
+        fadeoutTimer = setTimeout(() => {scrollOff(numLines-1);}, 250);
+    }
+}
+
+// Creates the html for a message containing emotes.
 function insertEmotes(messageData) {
     let textMessage = messageData.message.message;
     let emotes = messageData.emotes;
@@ -119,8 +157,8 @@ function insertEmotes(messageData) {
     return outputMessage;
 }
 
-// extracts the portion of UTf-16 sourceString starting at startIndex,
-// containing substringLength unicode characters (including chars > 0xffff)
+// Returns the substring of SOURCESTRING beginning at STARTINDEX position
+// which contains SUBSTRINGLENGTH unicode characters (including > 0xffff).
 
 function substring(sourceString, startIndex, substringLength)
 {
@@ -139,6 +177,7 @@ function substring(sourceString, startIndex, substringLength)
     return sourceString.substring(startIndex, endIndex);
 }
 
+// Removes all messages from a particular USERID from the display.
 function deleteMessagesFrom(userId)
 {
     let msgs = document.querySelectorAll(`[userId="${userId}"`);
@@ -147,6 +186,7 @@ function deleteMessagesFrom(userId)
     }
 }
 
+// Removes the message with a particular MSGID from the display.
 function deleteMessage(msgId)
 {
     let msgs = document.querySelectorAll(`[msgId="${msgId}"`);
