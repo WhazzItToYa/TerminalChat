@@ -9,4 +9,5 @@ URL: [https://whazzittoya.github.io/Overlays/TerminalChat/terminalchat.html](htt
 
 Query arguments:
 * `maxMessages` : number of most recent messages to keep.
+* `ignoreCommands` : If true/yes, will ignore commands.
 * `ignoreUsers` : comma-separated list of twitch usernames to ignore.
