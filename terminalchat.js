@@ -1,12 +1,20 @@
 const urlParams = new URLSearchParams(window.location.search);
 const KEEP_MESSAGES = urlParams.get('maxMessages') || 5;
 const IGNORE_USERS = urlParams.get('ignoreUsers') || "";
+const IGNORE_COMMANDS = isTrue(urlParams.get('ignoreCommands'));
 const IGNORED_USERS = {};
 
 for (const u of IGNORE_USERS.split(/,/)) {
     let user = u.trim();
     console.log(`Ignoring user ${user}`);
-    IGNORED_USERS[user] = true;
+    IGNORED_USERS[user.toLowerCase()] = true;
+}
+
+function isTrue(val)
+{
+    return val &&
+        ((val.toLowerCase() === "true") ||
+         (val.toLowerCase() === "yes"));
 }
 
 const client = new StreamerbotClient();
@@ -40,7 +48,7 @@ function displayChatMessage(data) {
     // Ignore certain users
     if (IGNORED_USERS[data.message.username]) return;
     // Ignore commands
-    if (data.message.message.startsWith("!")) return;
+    if (IGNORE_COMMANDS && data.message.message.startsWith("!")) return;
     
     // Clone the template element for each new message.
     let templateElement = document.getElementById("chatMessageTemplate");
