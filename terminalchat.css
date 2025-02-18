@@ -40,10 +40,16 @@ body {
 .chatMessage { /* a chatLine which contains an actual user message */
     animation-name: scroll, cursor;
     animation-delay: 0s, 0.25s;
-    animation-duration: 0.25s, 1.5s;
+    animation-duration: 0.25s, 2.0s;
     animation-iteration-count: 1, 1;
-    animation-timing-function: steps(2, jump-end), steps(40, jump-start);
+    animation-timing-function: steps(2, jump-end), steps(60, jump-start);
     animation-fill-mode: forwards, forwards;
+
+}
+
+.chatMessage.active {
+    border-right: 0.75em solid #7f7;
+    padding-right: 0em;
 }
 
 @keyframes scroll {

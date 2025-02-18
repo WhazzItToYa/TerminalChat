@@ -93,9 +93,15 @@ function insertNewLine()
 {
     // Clone the template element for each new message.
     let templateElement = document.getElementById("chatMessageTemplate");
+    let container = templateElement.parentElement;
     let newElement = templateElement.cloneNode(true);
     newElement.removeAttribute("id");
-    templateElement.parentElement.appendChild(newElement);
+
+    // Make only this new line active.
+    newElement.classList.add("active");
+    let oldLines = container.querySelectorAll(".chatLine.active");
+    oldLines.forEach( (elt,idx) => elt.classList.remove("active") );
+    container.appendChild(newElement);
     return newElement;
 }        
 
