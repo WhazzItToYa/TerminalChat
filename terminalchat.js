@@ -59,12 +59,45 @@ function displayChatMessage(data) {
     var username = newElement.querySelector("#user");
     username.textContent = data.message.displayName;
     username.style.color = data.message.color;
-    
+
+    // make it higher contrast if necessary
+    let fg = window.getComputedStyle(username).color;
+    console.log(`original color: ${fg}`);
+
+    let rgb = fg.match(/\d+/g).map(Number);
+    let newcolor = adjustColor(rgb, [0, 0, 0]);
+    fg = `rgb(${newcolor[0]}, ${newcolor[1]}, ${newcolor[2]})`;
+    console.log(`final color: ${newcolor}`);
+    username.style.color = fg;
+
     newElement.querySelector("#message").innerHTML = insertEmotes(data);
 
     removeOldMessages();
 
     updateFadeoutTimer();
+}
+
+function getLuminance(r, g, b) {
+    let a = [r, g, b].map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+}
+
+function getContrastRatio(fg, bg) {
+    let lum1 = getLuminance(fg[0], fg[1], fg[2]);
+    let lum2 = getLuminance(bg[0], bg[1], bg[2]);
+    let ratio = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
+    console.log(`contrast is ${ratio}`);
+    return ratio; // A ratio of 4.5+ is good for readability
+}
+
+function adjustColor(fg, bg) {
+    while (getContrastRatio(fg, bg) < 4.5) {
+        fg = fg.map(v => Math.min(255, v + (255-v)*0.25)); // Lighten foreground
+    }
+    return fg;
 }
 
 // Removes all but the last KEEP_MESSAGES messages.
