@@ -7,9 +7,22 @@ body {
     font-family: "Fixedsys Excelsior 3.01";
 }
 
-.chatMessage img {
+.emoteWrapper {
+    position: relative;
+    display: inline-block;
     height: 40px;
     vertical-align: text-bottom;
+}
+
+.emoteWrapper img {
+    height: 100%;
+}
+
+.emoteWrapper img.zeroWidth {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
 }
 
 #chatArea {

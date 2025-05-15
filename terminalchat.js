@@ -162,16 +162,37 @@ function insertEmotes(messageData) {
     let textMessage = messageData.message.message;
 
     let outputMessage = "";
+    let prevEmoteContainer = null;
+    
     for (const part of messageData.parts)
     {
         console.log(`processing ${JSON.stringify(part)}`);
         if (part.type === "text")
         {
             outputMessage += part.text;
+            if (part.text.trim().length > 0) {
+                prevEmoteContainer = null;
+            }
         }
         else if (part.type === "emote")
         {
-            outputMessage += `<img src="${encodeURI(part.imageUrl)}">`;
+            let zerowidth = part.zeroWidth; // || part.text === "RaveTime";
+
+            // If this emote is zerowidth, then insert it to overlap with the previous emote.
+            if (zerowidth && prevEmoteContainer !== null)
+            {
+                let emote = `<img class="zeroWidth" src="${encodeURI(part.imageUrl)}">`;
+                outputMessage = outputMessage.substring(0, prevEmoteContainer) +
+                    emote +
+                    outputMessage.substring(prevEmoteContainer);
+                prevEmoteContainer += emote.length;
+            }
+            // Insert the emote into a new position.
+            else
+            {
+                outputMessage += `<div class="emoteWrapper"><img src="${encodeURI(part.imageUrl)}"></div>`;
+                prevEmoteContainer = outputMessage.length - 6;
+            }
         }
     }
     return outputMessage;
