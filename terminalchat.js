@@ -169,7 +169,9 @@ function insertEmotes(messageData) {
         console.log(`processing ${JSON.stringify(part)}`);
         if (part.type === "text")
         {
-            outputMessage += part.text;
+            let textNode = document.createElement("span");
+            textNode.innerText = part.text;
+            outputMessage += textNode.innerHTML;
             if (part.text.trim().length > 0) {
                 prevEmoteContainer = null;
             }
