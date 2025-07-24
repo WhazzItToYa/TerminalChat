@@ -12,3 +12,4 @@ Query arguments:
 * `ignoreCommands` : If true/yes, will ignore commands.
 * `ignoreUsers` : comma-separated list of twitch usernames to ignore.
 * `fadeout`: Number of seconds messages stay before getting scrolled off.  Default: none
+* `messageDelay` : Number of seconds to delay before displaying messages, to allow for moderation to take place.

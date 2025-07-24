@@ -3,6 +3,7 @@ const KEEP_MESSAGES = urlParams.get('maxMessages') || 5;
 const IGNORE_USERS = urlParams.get('ignoreUsers') || "";
 const IGNORE_COMMANDS = isTrue(urlParams.get('ignoreCommands'));
 const FADEOUT_TIME = urlParams.get('fadeout') || (60*60*24);
+const MESSAGE_DELAY = urlParams.get('messageDelay') || 1;
 const IGNORED_USERS = {};
 
 for (const u of IGNORE_USERS.split(/,/)) {
@@ -22,7 +23,9 @@ const client = new StreamerbotClient();
 
 client.on('Twitch.ChatMessage', ({data}) => {
     try {
-        displayChatMessage(data);
+        console.log(data);
+        let incomingTime = Date.now();
+        window.setTimeout(() => displayChatMessage(data, incomingTime), MESSAGE_DELAY * 1000);
     } catch (e) {
         console.log(e);
     }
@@ -32,14 +35,14 @@ client.on('Twitch.ChatMessageDeleted', ({data: {messageId}}) => {
     deleteMessage(messageId);
 });
 client.on('Twitch.UserTimedOut', ({data: {user_id}}) => {
-    deleteMessagesFrom(user_id);
+    deleteMessagesFrom(user_id, Date.now());
 });
 client.on('Twitch.UserBanned', ({data: {user_id}}) => {
-    deleteMessagesFrom(user_id);
+    deleteMessagesFrom(user_id, Date.now() + 365*24*60*60*1000);
 });
 
 // Appends a chat message to the display.
-function displayChatMessage(data) {
+function displayChatMessage(data, messageTime) {
     // console.dir(data);
 
     let messageId = data.messageId;
@@ -50,6 +53,12 @@ function displayChatMessage(data) {
     // Ignore commands
     if (IGNORE_COMMANDS && data.message.message.startsWith("!")) return;
 
+    // Due to the message delay, the message might have arrived before
+    // it was moderated.  Check if it has been retroactively deleted.
+    if (DeletedMessages[messageId]) return;
+    // Message came in before the user was timed out.
+    if (TimedoutUsers[userId] && messageTime < TimedoutUsers[userId]) return;
+        
     let newElement = insertNewLine();
 
     // Put the message into the cloned element
@@ -200,18 +209,24 @@ function insertEmotes(messageData) {
     return outputMessage;
 }
 
+let TimedoutUsers = {};
+
 // Removes all messages from a particular USERID from the display.
-function deleteMessagesFrom(userId)
+function deleteMessagesFrom(userId, untilTime)
 {
+    TimedoutUsers[userId] = untilTime;
     let msgs = document.querySelectorAll(`[userId="${userId}"`);
     for (const elt of msgs) {
         elt.remove();
     }
 }
 
+let DeletedMessages = {};
+
 // Removes the message with a particular MSGID from the display.
 function deleteMessage(msgId)
 {
+    DeletedMessages[msgId] = true;
     let msgs = document.querySelectorAll(`[msgId="${msgId}"`);
     for (const elt of msgs) {
         elt.remove();
